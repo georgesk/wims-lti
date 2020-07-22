@@ -336,14 +336,15 @@ def get_or_create_class(lms: LMS, wims_srv: WIMS, wapi: wimsapi.WimsAPI,
 def wimsLogin(firstname: str, lastname: str) -> str:
     """Create a login identifier for Wims, taking care of accented characters"""
 
-    accented    = "áàâäçéèêëíìîïóòôöúùûü'- "
-    replacement = "aaaaceeeeiiiioooouuuu___"
-
+    replacements = [
+        "áàâäçéèêëíìîïóòôöúùûü'- ",
+        "aaaaceeeeiiiioooouuuu___"
+    ]
     quser = (firstname[0] + lastname).lower()[:22]
     result = ""
     for c in quser:
-        if c in accented:
-            result += replacement[accented.index(c)]
+        if c in replacements[0]:
+            result += replacements[1][replacements[0].index(c)]
         else:
             result += c
     return result
@@ -356,7 +357,7 @@ def create_user(parameters: Dict[str, Any]) -> wimsapi.User:
     lastname = parameters['lis_person_name_family']
     firstname = parameters['lis_person_name_given']
     mail = parameters["lis_person_contact_email_primary"]
-    quser =  wimsLogin(firstname, lastname)
+    quser = wimsLogin(firstname, lastname)
     
     return wimsapi.User(quser, lastname, firstname, password, mail,
                         regnum=parameters["user_id"])
